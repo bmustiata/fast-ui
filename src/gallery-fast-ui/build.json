@@ -1,0 +1,10 @@
+{
+    "name": "gallery-fast-ui",
+    "builds": {
+        "gallery-fast-ui": {
+            "jsfiles": [
+                "js/gallery-fast-ui.js"
+            ]
+        }
+    }
+}

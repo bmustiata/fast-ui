@@ -1,0 +1,7 @@
+{
+    "gallery-fast-ui": {
+        "requires": [
+            "yui-base"
+        ]
+    }
+}
