@@ -1,7 +1,7 @@
 {
     "gallery-fast-ui": {
         "requires": [
-            "yui-base"
+            "datatype-xml", "node", "widget", "yui-base"
         ]
     }
 }

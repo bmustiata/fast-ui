@@ -3,7 +3,11 @@
     "builds": {
         "gallery-fast-ui": {
             "jsfiles": [
-                "js/gallery-fast-ui.js"
+                "get-attribute.js",
+                "custom-widget-config.js",
+                "custom-widget.js",
+                "xml-to-html-parsing.js",
+                "fast-ui.js"
             ]
         }
     }

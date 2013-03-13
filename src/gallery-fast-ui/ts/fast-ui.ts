@@ -70,15 +70,19 @@ function createWidget(rootNode, customWidget, config) {
 
 Y.fastUi = function(parent, xmlContent, msg, config) {
     var guiCreationContext = preXmlParse(xmlContent),
-        widgets = guiCreationContext.widgets,
-        htmlCode = guiCreationContext.html,
-        variables = guiCreationContext.variables,
+        widgets = guiCreationContext.widgets, // list of widgets that need to be created
+        htmlCode = guiCreationContext.html, // html with widgets replaced as <span/>
+        variables = guiCreationContext.variables, // variables that need to be returned by this function.
         translatedHtml = msg ? Y.substitute(htmlCode, msg) : htmlCode,
-        // looks like IE7/8 get confused when creating elements that are not closed.
-        closedNodeHtmlBugFix = translatedHtml.replace(/<([\w\d]+?)\s+([^>]+?)\/>/gm,"<$1 $2></$1>"),
-        rootNode = [ Y.Node.create( closedNodeHtmlBugFix ) ],
-        createdWidgets = {},
+        rootNode, createdWidgets = {},// widgets map for back references.
         result, i, variable, node, newWidget;
+
+    // looks like IE7/8 get confused when creating elements that are not closed.
+    translatedHtml = translatedHtml.replace(/<([\w\d]+?)\s+([^>]+?)\/>/gm,"<$1 $2></$1>");
+
+    // root node is array, in order to be able to update it.
+    rootNode = [ Y.Node.create( translatedHtml ) ];
+
 
     if (parent) {
         parent.appendChild( rootNode[0] ); // all the rendering takes place inside the parent node.
