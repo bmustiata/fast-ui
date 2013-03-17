@@ -1,26 +1,41 @@
-var Y:any;
-
 class TemplateParser {
-    public variables;
-    public widgets;
+    public variables: string[];
+    public widgets: WidgetDefinition[] = [];
+    public htmlContent;
 
-    public parse(xmlContent: string) {
-        var xmlDoc = Y.XML.parse(xmlContent);
+    public parse(xmlContent: string): ParserResult {
+        var xmlDoc = Y.XML.parse(xmlContent),
+            htmlDoc;
+
+        this.traverseElement(xmlDoc.firstChild);
+
+        this.htmlContent = Y.XML.format(xmlDoc.firstChild);
+
+        return {
+            variables : this.variables,
+            widgetDefinitions : this.widgets,
+            htmlContent : this.htmlContent
+        }
     }
 
-    private traverseElement(element: Element) {
-        var i: number;
+    /**
+     * Recursively traverses the XML document, binding variables and instantiating widgetDefinitions.
+     * @param element Start element.
+     */
+    private traverseElement(element: HTMLElement) {
+        var childElement: HTMLElement;
 
-        for (i = 0; i < element.childNodes.length; i++) {
-            this.traverseElement(element.childNodes[i]);
+        for (var i = 0; i < element.childNodes.length; i++) {
+            childElement = <HTMLElement> element.childNodes[i];
+            // IE up to 8 incorrectly counts comment nodes
+            if (childElement.nodeType === 1) {
+                this.traverseElement(childElement);
+            }
         }
+
 
         this.checkVariable(element);
-
-        // there is a namespace URI, thus I need to create a custom object
-        if (element.namespaceURI) {
-            this.checkWidget(element);
-        }
+        this.checkWidget(element);
     }
 
     private checkVariable(element: Element) {
@@ -32,17 +47,22 @@ class TemplateParser {
     }
 
     private checkWidget(element: Element) {
-        var widget = new CustomWidget(
-                this.getId(element), // node ID
-                element.namespaceURI + "." + (element.localName || element.baseName), // full class
-                // TODO replace the config element
-                CustomWidgetConfig.buildFromElement(element) // configuration
-            ),
+        // there is a namespace URI, we need to create a WidgetDefinition
+        if (!element.namespaceURI)
+            return;
+
+        var elementName = element.localName || element.baseName,
+            fullClassName = element.namespaceURI + "." + elementName,
+            widget = {
+                nodeId : this.getId(element),
+                className : fullClassName,
+                config : WidgetConfig.buildFromElement(element)
+            },
             placeHolderElement = this.createPlaceHolderElement(element);;
 
         this.widgets.push(widget);
 
-        element.parentNode.replace(placeHolderElement, element);
+        element.parentNode.replaceChild(placeHolderElement, element);
     }
 
     // TODO replace with element.getAttribute
@@ -63,6 +83,7 @@ class TemplateParser {
     private getId(element: Element) {
         var id = this.getAttribute(element, 'id');
 
+        // if the element does not have an id, we create one
         if (id === null) {
             id = Y.guid('fast-ui-');
             element.setAttribute('id', id);
@@ -72,7 +93,7 @@ class TemplateParser {
     }
 
     private getElementType(element: Element) {
-        var srcNodeType = getAttribute(element, "ui-src");
+        var srcNodeType = this.getAttribute(element, "ui-src");
 
         return srcNodeType ? srcNodeType : "span";
     }
@@ -90,5 +111,7 @@ class TemplateParser {
             sourceElement.removeChild(child);
             newElement.appendChild(child);
         }
+
+        return newElement;
     }
 }
