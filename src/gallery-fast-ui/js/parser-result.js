@@ -1,14 +1,16 @@
-interface ParserResult {
+function ParserResult() {
     /**
      * Variables detected.
      */
-    variables: string[];
+    this.variables = [];
+
     /**
      * Widgets detected.
      */
-    widgetDefinitions: WidgetDefinition[];
+    this.widgetDefinitions = [];
+
     /**
      * The HTML code resulted.
      */
-    htmlContent: string;
+    this.htmlContent = [];
 }
