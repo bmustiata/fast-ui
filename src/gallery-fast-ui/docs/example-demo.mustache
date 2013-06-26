@@ -10,7 +10,7 @@
 
 <div id="demo" class="example yui3-skin-sam">
 	<script>
-        var htmlCode = '<Y:TabView ui-src="div" xmlns:Y="Y">' +
+        var htmlCode = '<Y:TabView ui:src="div" xmlns:Y="Y" xmlns:ui="fastui">' +
             '    <ul>' +
             '        <li><a href="tab1">{HOME}</a></li>' +
             '        <li><a href="tab2">{OTHER}</a></li>' +
@@ -20,11 +20,11 @@
             '            <div>' +
             '            {SOME_MESSAGE}' +
             '            </div>' +
-            '            <Y:Button ui-src="span" ui-field="okButton" label="{OK}"/>' +
-            '            <Y:Button ui-src="span" ui-field="cancelButton" label="{CANCEL}"/>' +
+            '            <Y:Button ui:src="span" ui:field="okButton" label="{OK}"/>' +
+            '            <Y:Button ui:src="span" ui:field="cancelButton" label="{CANCEL}"/>' +
             '        </div>' +
             '        <div id="tab2">' +
-            '            <Y:Button ui-src="span" ui-field="otherButton" label="{OTHER_BUTTON}"/>' +
+            '            <Y:Button ui:src="span" ui:field="otherButton" label="{OTHER_BUTTON}"/>' +
             '        </div>' +
             '    </div>' +
             '</Y:TabView>';

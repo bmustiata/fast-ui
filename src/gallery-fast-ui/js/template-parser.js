@@ -39,7 +39,7 @@ TemplateParser.prototype.traverseElement = function (element) {
 };
 
 TemplateParser.prototype.checkVariable = function(element) {
-    var uiField = this.getAttribute(element, 'ui-field');
+    var uiField = this.getAttribute(element, 'field', 'fastui');
 
     if (uiField) {
         this.variables[uiField] = this.getId(element);
@@ -69,16 +69,21 @@ TemplateParser.prototype.checkWidget = function(element) {
 };
 
 
-TemplateParser.prototype.getAttribute = function(element, attributeName) {
-    var i;
+TemplateParser.prototype.getAttribute = function(element, attributeName, namespaceURI) {
+    var i, attribute;
 
     if (!element.attributes) {
         return null;
     }
 
+    namespaceURI = !!namespaceURI ? namespaceURI : null;
+
     for (i = 0; i < element.attributes.length; i++) {
-        if (element.attributes[i].name === attributeName) {
-            return element.attributes[i].value;
+        attribute = element.attributes[i];
+
+        if (attribute.localName === attributeName &&
+            attribute.namespaceURI === namespaceURI) {
+            return attribute.value;
         }
     }
 
@@ -98,7 +103,7 @@ TemplateParser.prototype.getId = function(element) {
 };
 
 TemplateParser.prototype.getElementType = function(element) {
-    var srcNodeType = this.getAttribute(element, "ui-src");
+    var srcNodeType = this.getAttribute(element, "src", "fastui");
 
     return srcNodeType ? srcNodeType : "span";
 };

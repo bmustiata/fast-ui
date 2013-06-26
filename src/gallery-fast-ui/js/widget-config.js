@@ -13,18 +13,19 @@ WidgetConfig.prototype.addProperty = function(name, value) {
  */
 WidgetConfig.buildFromElement = function(element) {
     var widgetConfig = new WidgetConfig(),
-        attributeName, attributeValue, id, i;
+        attributeName, attributeValue, attributeNamespace, id, i;
 
     for (i = 0; i < element.attributes.length; i++) {
-        attributeName = element.attributes[i].name;
+        attributeName = element.attributes[i].localName;
         attributeValue = element.attributes[i].value;
+        attributeNamespace = !!element.attributes[i].namespaceURI ? element.attributes[i].namespaceURI : null;
 
-        if (attributeName === "ui-config") {
+        if (attributeName === "config-key" && attributeNamespace === "fastui") {
             widgetConfig.globalConfigKey = attributeValue;
             continue;
         }
 
-        if (attributeName === "ui-src") {
+        if (attributeName === "src" && attributeNamespace === "fastui") {
             id = element.getAttribute('id');
 
             widgetConfig.srcNode = attributeValue;
@@ -32,7 +33,7 @@ WidgetConfig.buildFromElement = function(element) {
             continue;
         }
 
-        if (attributeName === "id" || /^ui-/.test(attributeName)) {
+        if (attributeName === "id" || !!attributeNamespace) {
             continue;
         }
 

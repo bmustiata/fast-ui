@@ -3,6 +3,7 @@
     "builds": {
         "gallery-fast-ui": {
             "jsfiles": [
+                "widget-definition.js",
                 "widget-config.js",
                 "template-parser.js",
                 "fast-ui-builder.js",
