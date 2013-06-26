@@ -14,7 +14,7 @@ FastUiBuilder.prototype.parse = function() {
         createdWidgets = {},  // so far no widgets are yet created.
         newWidget,
         key,
-        node,
+        nodeId,
         i,
         result;
 
@@ -24,9 +24,7 @@ FastUiBuilder.prototype.parse = function() {
         this.parent.appendChild(this.rootNode);
     }
 
-    result = {
-        node : this.getWidgetOrNode( this.rootNode, createdWidgets )
-    };
+    result = {};
 
     for (i = widgetDefinitions.length - 1; i >= 0; i--) {
         newWidget = this.createWidget(widgetDefinitions[i]);
@@ -38,8 +36,8 @@ FastUiBuilder.prototype.parse = function() {
     // the rest of the variables reference just nodes
     for (key in variables) {
         if (variables.hasOwnProperty(key)) {
-            node = this.rootNode.one('#' + variables[key]);
-            result[key] = this.getWidgetOrNode(node, createdWidgets );
+            nodeId = variables[key];
+            result[key] = this.getWidgetOrNode(nodeId, createdWidgets );
         }
     }
 
@@ -59,10 +57,10 @@ FastUiBuilder.prototype.createRootNode = function(parseResult) {
     return Y.Node.create( closedNodeHtmlBugFix );
 };
 
-FastUiBuilder.prototype.getWidgetOrNode = function(node, createdWidgets) {
-    var widget = createdWidgets[node.get("id")];
+FastUiBuilder.prototype.getWidgetOrNode = function(nodeId, createdWidgets) {
+    var widget = createdWidgets[nodeId];
 
-    return widget ? widget : node;
+    return widget ? widget : this.rootNode.one("#" + nodeId);
 };
 
 FastUiBuilder.prototype.updateBindings = function(variables, widget) {
@@ -74,15 +72,6 @@ FastUiBuilder.prototype.updateBindings = function(variables, widget) {
             delete variables[key];
         }
     }
-};
-
-FastUiBuilder.prototype.createNode = function(htmlContent, msg) {
-    var translatedHtml = msg ? Y.Lang.sub(htmlContent, msg) : htmlContent;
-
-    // looks like IE7/8 get confused when creating elements that are self-closing.
-    translatedHtml = translatedHtml.replace(/<([\w\d]+?)\s+([^>]+?)\/>/gm,"<$1 $2></$1>");
-
-    return Y.Node.create(translatedHtml);
 };
 
 FastUiBuilder.prototype.createWidget = function(widget) {
@@ -107,10 +96,10 @@ FastUiBuilder.prototype.createWidget = function(widget) {
 };
 
 FastUiBuilder.prototype.findElement = function(id) {
-    if (this.rootNode.get("id") == id) {
+    if (this.rootNode.get("id") === id) {
         return this.rootNode;
     } else {
-        return this.rootNode.one("#" + id)
+        return this.rootNode.one("#" + id);
     }
 };
 

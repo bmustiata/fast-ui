@@ -8,9 +8,27 @@
 
 <p>*Module Description Goes Here*</p>
 
-<div id="demo" class="example">
+<div id="demo" class="example yui3-skin-sam">
 	<script>
-        var htmlCode = "<Y:Button xmlns:Y='Y' label='Ok'/>"
+        var htmlCode = '<Y:TabView ui-src="div" xmlns:Y="Y">' +
+            '    <ul>' +
+            '        <li><a href="tab1">{HOME}</a></li>' +
+            '        <li><a href="tab2">{OTHER}</a></li>' +
+            '    </ul>' +
+            '    <div>' +
+            '        <div id="tab1">' +
+            '            <div>' +
+            '            {SOME_MESSAGE}' +
+            '            </div>' +
+            '            <Y:Button ui-src="span" ui-field="okButton" label="{OK}"/>' +
+            '            <Y:Button ui-src="span" ui-field="cancelButton" label="{CANCEL}"/>' +
+            '        </div>' +
+            '        <div id="tab2">' +
+            '            <Y:Button ui-src="span" ui-field="otherButton" label="{OTHER_BUTTON}"/>' +
+            '        </div>' +
+            '    </div>' +
+            '</Y:TabView>';
+
 
 		YUI({
 			modules:{
@@ -18,8 +36,27 @@
 					fullpath: '/build/gallery-fast-ui/gallery-fast-ui.js'
 				}
 			}
-		}).use('{{use}}', 'button', function(Y){
-		    console.log( Y.fastUi("#demo", htmlCode) );
+	    }).use('{{use}}', 'button', 'tabview', function(Y){
+		    var msg = {
+		        HOME : "Home",
+		        OK : "Ok",
+		        CANCEL : "Cancel",
+		        SOME_MESSAGE : "Some message",
+		        OTHER : "Other",
+		        OTHER_BUTTON : "Other Button"
+		    };
+
+		    var ui = Y.fastUi("#demo", htmlCode, msg);
+
+            ui.okButton.on("click", function() {
+                alert('ok clicked');
+            });
+            ui.cancelButton.on("click", function() {
+                alert('cancel clicked');
+            });
+            ui.otherButton.on("click", function() {
+                alert('other button clicked');
+            });
 		});
 	</script>
 </div>
