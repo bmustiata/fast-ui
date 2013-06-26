@@ -53,13 +53,15 @@ TemplateParser.prototype.checkWidget = function(element) {
     }
 
     var elementName = element.localName || element.baseName,
+        placeHolderElement,
         fullClassName = element.namespaceURI + "." + elementName,
-        widget = {
-            nodeId: this.getId(element),
-            className: fullClassName,
-            config: WidgetConfig.buildFromElement(element)
-        },
-        placeHolderElement = this.createPlaceHolderElement(element);
+        widget = new WidgetDefinition(
+            this.getId(element),
+            fullClassName,
+            WidgetConfig.buildFromElement(element)
+        );
+
+    placeHolderElement = this.createPlaceHolderElement(element);
 
     this.widgets.push(widget);
 
