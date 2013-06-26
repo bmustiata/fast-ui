@@ -1,0 +1,25 @@
+<div class="intro">
+    <p>
+    *Tis' but a demo page*
+    </p>
+</div>
+
+<h2>Description</h2>
+
+<p>*Module Description Goes Here*</p>
+
+<div id="demo" class="example">
+	<script>
+        var htmlCode = "<Y:Button xmlns:Y='Y' label='Ok'/>"
+
+		YUI({
+			modules:{
+				'gallery-fast-ui': {
+					fullpath: '/build/gallery-fast-ui/gallery-fast-ui.js'
+				}
+			}
+		}).use('{{use}}', 'button', function(Y){
+		    console.log( Y.fastUi("#demo", htmlCode) );
+		});
+	</script>
+</div>
