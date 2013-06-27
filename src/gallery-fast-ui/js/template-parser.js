@@ -25,17 +25,27 @@ TemplateParser.prototype.parse = function (xmlContent) {
 TemplateParser.prototype.traverseElement = function (element) {
     var i, childElement;
 
+    var configNodes = [];
+
     for (i = 0; i < element.childNodes.length; i++) {
         childElement = element.childNodes[i];
         // IE up to 8 incorrectly counts comment nodes
         if (childElement.nodeType === 1) {
+            // if it's a configuration node, store it for widget config, and remove it from the final template.
+            if (this.isConfigElement(childElement)) {
+                configNodes.push(childElement);
+                element.removeChild( childElement );
+
+                continue; // don't traverse the configuration node.
+            }
+
             this.traverseElement(childElement);
         }
     }
 
 
     this.checkVariable(element);
-    this.checkWidget(element);
+    this.checkWidget(element, configNodes);
 };
 
 TemplateParser.prototype.checkVariable = function(element) {
@@ -46,7 +56,13 @@ TemplateParser.prototype.checkVariable = function(element) {
     }
 };
 
-TemplateParser.prototype.checkWidget = function(element) {
+TemplateParser.prototype.isConfigElement = function(element) {
+    return element.namespaceURI &&
+        element.namespaceURI === "fastui" &&
+        element.localName === "config";
+};
+
+TemplateParser.prototype.checkWidget = function(element, configNodes) {
     // there is a namespace URI, we need to create a WidgetDefinition
     if (!element.namespaceURI) {
         return;
@@ -58,7 +74,7 @@ TemplateParser.prototype.checkWidget = function(element) {
         widget = new WidgetDefinition(
             this.getId(element),
             fullClassName,
-            WidgetConfig.buildFromElement(element)
+            WidgetConfig.buildFromElement(element, configNodes)
         );
 
     placeHolderElement = this.createPlaceHolderElement(element);

@@ -10,24 +10,33 @@
 
 <div id="demo" class="example yui3-skin-sam">
 	<script>
-        var htmlCode = '<Y:TabView ui:src="div" xmlns:Y="Y" xmlns:ui="fastui">' +
-            '    <ul>' +
-            '        <li><a href="tab1">{HOME}</a></li>' +
-            '        <li><a href="tab2">{OTHER}</a></li>' +
-            '    </ul>' +
-            '    <div>' +
-            '        <div id="tab1">' +
-            '            <div>' +
-            '            {SOME_MESSAGE}' +
-            '            </div>' +
-            '            <Y:Button ui:src="span" ui:field="okButton" label="{OK}"/>' +
-            '            <Y:Button ui:src="span" ui:field="cancelButton" label="{CANCEL}"/>' +
-            '        </div>' +
-            '        <div id="tab2">' +
-            '            <Y:Button ui:src="span" ui:field="otherButton" label="{OTHER_BUTTON}"/>' +
-            '        </div>' +
-            '    </div>' +
-            '</Y:TabView>';
+        var htmlCode = '' +
+                '<Y:Panel ui:field="dialog" ui:src="div" xmlns:Y="Y" xmlns:ui="fastui">' +
+                '    <ui:config name="width" type="js">400</ui:config>' +
+                '    <ui:config name="centered" type="js">true</ui:config>' +
+                '    <ui:config name="modal" type="js">false</ui:config>' +
+                '    <ui:config name="visible" type="js">false</ui:config>' +
+                '    <ui:config name="bodyContent">' +
+                '        <Y:TabView ui:src="div">' +
+                '            <ul>' +
+                '                <li><a href="tab1">{HOME}</a></li>' +
+                '                <li><a href="tab2">{OTHER}</a></li>' +
+                '            </ul>' +
+                '            <div>' +
+                '                <div id="tab1">' +
+                '                    <div>' +
+                '                    {SOME_MESSAGE}' +
+                '                    </div>' +
+                '                    <Y:Button ui-src="true" ui-field="okButton" label="{OK}"/>' +
+                '                    <Y:Button ui-src="true" ui-field="cancelButton" label="{CANCEL}"/>' +
+                '                </div>' +
+                '                <div id="tab2">' +
+                '                    <Y:Button ui-src="true" ui-field="otherButton" label="{OTHER_BUTTON}"/>' +
+                '                </div>' +
+                '            </div>' +
+                '        </Y:TabView>' +
+                '    </ui:config>' +
+                '</Y:Panel>';
 
 
 		YUI({
@@ -36,7 +45,7 @@
 					fullpath: '/build/gallery-fast-ui/gallery-fast-ui.js'
 				}
 			}
-	    }).use('{{use}}', 'button', 'tabview', function(Y){
+	    }).use('{{use}}', 'button', 'tabview', 'panel', function(Y){
 		    var msg = {
 		        HOME : "Home",
 		        OK : "Ok",
@@ -48,6 +57,7 @@
 
 		    var ui = Y.fastUi("#demo", htmlCode, msg);
 
+            /*
             ui.okButton.on("click", function() {
                 alert('ok clicked');
             });
@@ -57,6 +67,14 @@
             ui.otherButton.on("click", function() {
                 alert('other button clicked');
             });
+            */
+
+		    Y.fastUi("#demo", "<Y:Button ui:field='demoButton' label='show dialog' xmlns:Y='Y' xmlns:ui='fastui'/>")
+		        .demoButton.on("click", function() {
+                    ui.dialog.show();
+		        });
+
+
 		});
 	</script>
 </div>

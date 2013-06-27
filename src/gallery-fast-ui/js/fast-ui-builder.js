@@ -41,6 +41,8 @@ FastUiBuilder.prototype.parse = function() {
         }
     }
 
+    result["_rootNode"] = this.rootNode;
+
     return result;
 };
 
@@ -121,7 +123,7 @@ FastUiBuilder.prototype.getClassConfig = function(widgetConfig) {
     var widgetGlobalConfig, finalConfig = {};
 
     // widgetConfig.srcNode gets in
-    finalConfig = Y.merge(finalConfig, widgetConfig.properties);
+    finalConfig = Y.merge(finalConfig, this.evaluateProperties(widgetConfig.properties));
 
     if (this.globalConfig && widgetConfig.globalConfigKey) {
         widgetGlobalConfig = this.globalConfig[widgetConfig.globalConfigKey];
@@ -130,4 +132,17 @@ FastUiBuilder.prototype.getClassConfig = function(widgetConfig) {
     }
 
     return finalConfig;
+};
+
+FastUiBuilder.prototype.evaluateProperties = function(propertiesMap) {
+    var key,
+        result = {};
+
+    for (key in propertiesMap) {
+        if (propertiesMap.hasOwnProperty(key)) {
+            result[key] = propertiesMap[key].evaluateValue(null);
+        }
+    }
+
+    return result;
 };
