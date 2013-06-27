@@ -30,24 +30,25 @@ TemplateParser.prototype.parse = function (xmlContent) {
  * @param element Start element.
  */
 TemplateParser.prototype.traverseElement = function (element) {
-    var i, childElement;
-
-    var configNodes = [];
+    var i, childElement, configNodes = [];
 
     for (i = 0; i < element.childNodes.length; i++) {
         childElement = element.childNodes[i];
         // IE up to 8 incorrectly counts comment nodes
         if (childElement.nodeType === 1) {
-            // if it's a configuration node, store it for widget config, and remove it from the final template.
+            // if it's a configuration node, store it for widget config, and prepare to remove it from the final template.
             if (this.isConfigElement(childElement)) {
                 configNodes.push(childElement);
-                element.removeChild( childElement );
-
                 continue; // don't traverse the configuration node.
             }
 
             this.traverseElement(childElement);
         }
+    }
+
+    // remove the configuration node from the final template.
+    for (i = 0; i < configNodes.length; i++) {
+        element.removeChild( configNodes[i] );
     }
 
     var widgetId = this.getId(element);

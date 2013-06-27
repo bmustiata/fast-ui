@@ -114,7 +114,7 @@ function getUiNodeAsString(xmlNode) {
  * @returns {*}
  */
 function getJsNodeAsString(xmlNode) {
-    return xmlNode.textContent;
+    return xmlNode.textContent || xmlNode.text;
 }
 
 /**
@@ -123,6 +123,6 @@ function getJsNodeAsString(xmlNode) {
  * @returns {*}
  */
 function getStringNodeAsString(xmlNode) {
-    return xmlNode.textContent;
+    return xmlNode.textContent || xmlNode.text;
 }
 

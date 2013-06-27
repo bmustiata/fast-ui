@@ -4,7 +4,7 @@ var htmlCode = '' +
     '    <ui:config name="width">400</ui:config>' +
     '    <ui:config name="centered">true</ui:config>' +
     '    <ui:config name="modal">false</ui:config>' +
-    '    <ui:config name="display">false</ui:config>' +
+    '    <ui:config name="visible">false</ui:config>' +
     '' +
     '    <ui:config name="bodyContent" type="ui">' +
     '        <Y:TabView ui:srcNode="div">' +
@@ -14,9 +14,7 @@ var htmlCode = '' +
     '            </ul>' +
     '            <div>' +
     '                <div id="tab1">' +
-    '                    <div>' +
-    '                    {SOME_MESSAGE}' +
-    '                    </div>' +
+    '                    <div>{SOME_MESSAGE}</div>' +
     '                    <Y:Button ui:srcNode="span" ui:field="okButton" label="{OK}"/>' +
     '                    <Y:Button ui:srcNode="span" ui:field="cancelButton" label="{CANCEL}"/>' +
     '                </div>' +
