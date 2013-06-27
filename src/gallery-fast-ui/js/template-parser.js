@@ -50,26 +50,29 @@ TemplateParser.prototype.traverseElement = function (element) {
         }
     }
 
+    var widgetId = this.getId(element);
 
-    this.checkVariable(element);
-    this.checkWidget(element, configNodes);
+    this.checkVariable(element, widgetId);
+    this.checkWidget(element, widgetId, configNodes);
 };
 
-TemplateParser.prototype.checkVariable = function(element) {
+TemplateParser.prototype.checkVariable = function(element, widgetId) {
     var uiField = this.getAttribute(element, 'field', 'fastui');
 
     if (uiField) {
-        this.variables[uiField] = this.getId(element);
+        this.variables[uiField] = widgetId;
     }
 };
 
 TemplateParser.prototype.isConfigElement = function(element) {
+    var elementName = element.localName || element.baseName;
+
     return element.namespaceURI &&
         element.namespaceURI === "fastui" &&
-        element.localName === "config";
+        elementName === "config";
 };
 
-TemplateParser.prototype.checkWidget = function(element, configNodes) {
+TemplateParser.prototype.checkWidget = function(element, widgetId, configNodes) {
     // there is a namespace URI, we need to create a WidgetDefinition
     if (!element.namespaceURI) {
         return;
@@ -79,12 +82,12 @@ TemplateParser.prototype.checkWidget = function(element, configNodes) {
         placeHolderElement,
         fullClassName = element.namespaceURI + "." + elementName,
         widget = new WidgetDefinition(
-            this.getId(element),
+            widgetId,
             fullClassName,
-            WidgetConfig.buildFromElement(element, configNodes)
+            WidgetConfig.buildFromElement(widgetId, element, configNodes)
         );
 
-    placeHolderElement = this.createPlaceHolderElement(element);
+    placeHolderElement = this.createPlaceHolderElement(element, widgetId);
 
     this.widgets.push(widget);
 
@@ -93,7 +96,7 @@ TemplateParser.prototype.checkWidget = function(element, configNodes) {
 
 
 TemplateParser.prototype.getAttribute = function(element, attributeName, namespaceURI) {
-    var i, attribute;
+    var i, attribute, attrName;
 
     if (!element.attributes) {
         return null;
@@ -103,8 +106,9 @@ TemplateParser.prototype.getAttribute = function(element, attributeName, namespa
 
     for (i = 0; i < element.attributes.length; i++) {
         attribute = element.attributes[i];
+        attrName = attribute.localName || attribute.baseName;
 
-        if (attribute.localName === attributeName &&
+        if (attrName === attributeName &&
             attribute.namespaceURI === namespaceURI) {
             return attribute.value;
         }
@@ -117,9 +121,8 @@ TemplateParser.prototype.getId = function(element) {
     var id = this.getAttribute(element, 'id');
 
     // if the element does not have an id, we create one
-    if (id === null) {
+    if (!id) {
         id = Y.guid('fast-ui-');
-        element.setAttribute('id', id);
     }
 
     return id;
@@ -131,14 +134,13 @@ TemplateParser.prototype.getElementType = function(element) {
     return srcNodeType ? srcNodeType : "span";
 };
 
-TemplateParser.prototype.createPlaceHolderElement = function(sourceElement) {
+TemplateParser.prototype.createPlaceHolderElement = function(sourceElement, widgetId) {
     var document = sourceElement.ownerDocument,
         elementType = this.getElementType(sourceElement),
-        id = this.getAttribute(sourceElement, 'id'),
         newElement = document.createElement(elementType),
         child;
 
-    newElement.setAttribute('id', id);
+    newElement.setAttribute('id', widgetId);
 
     while (!!(child = sourceElement.firstChild)) {
         sourceElement.removeChild(child);
@@ -146,4 +148,14 @@ TemplateParser.prototype.createPlaceHolderElement = function(sourceElement) {
     }
 
     return newElement;
+};
+
+/**
+ * @private
+ * @param element
+ * @param name
+ * @param value
+ */
+TemplateParser.prototype.setAttribute = function(element, name, value) {
+    Y.one(element).setAttribute(name, value);
 };

@@ -17,11 +17,11 @@ var htmlCode = '' +
     '                    <div>' +
     '                    {SOME_MESSAGE}' +
     '                    </div>' +
-    '                    <Y:Button ui:srcNode="button" ui:field="okButton" label="{OK}"/>' +
-    '                    <Y:Button ui:srcNode="button" ui:field="cancelButton" label="{CANCEL}"/>' +
+    '                    <Y:Button ui:srcNode="span" ui:field="okButton" label="{OK}"/>' +
+    '                    <Y:Button ui:srcNode="span" ui:field="cancelButton" label="{CANCEL}"/>' +
     '                </div>' +
     '                <div id="tab2">' +
-    '                    <Y:Button ui:srcNode="button" ui:field="otherButton" label="{OTHER_BUTTON}"/>' +
+    '                    <Y:Button ui:srcNode="span" ui:field="otherButton" label="{OTHER_BUTTON}"/>' +
     '                </div>' +
     '            </div>' +
     '        </Y:TabView>' +
@@ -48,8 +48,12 @@ ui.cancelButton.on("click", function() {
     ui.dialog.hide();
 });
 
+var showDialogButton = new Y.Button({
+	label : "Show dialog"
+});
 
-Y.fastUi("#demo", "<Y:Button ui:field='demoButton' label='show dialog' xmlns:Y='Y' xmlns:ui='fastui'/>")
-    .demoButton.on("click", function() {
-        ui.dialog.show();
-    });
+showDialogButton.render("#demo");
+
+showDialogButton.on("click", function() {
+    ui.dialog.show();
+});

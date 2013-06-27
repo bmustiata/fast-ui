@@ -13,10 +13,10 @@ WidgetConfig.prototype.addProperty = function(name, value, type) {
 /**
  * Builds a WidgetConfig from the DOM element given.
  */
-WidgetConfig.buildFromElement = function(element, configNodes) {
+WidgetConfig.buildFromElement = function(id, element, configNodes) {
     var widgetConfig = new WidgetConfig();
 
-    readConfigFromAttributes(widgetConfig, element);
+    readConfigFromAttributes(id, widgetConfig, element);
     readConfigFromElements(widgetConfig, configNodes);
 
     return widgetConfig;
@@ -24,11 +24,12 @@ WidgetConfig.buildFromElement = function(element, configNodes) {
 
 /**
  * Read values that should be passed to the config from the attributes of the element.
- * @param widgetConfig
+ * @param {string} id - unique ID in the DOM.
+ * @param {WidgetConfig} widgetConfig
  * @param element
  */
-function readConfigFromAttributes(widgetConfig, element) {
-    var attributeName, attributeValue, attributeNamespace, id, i;
+function readConfigFromAttributes(id, widgetConfig, element) {
+    var attributeName, attributeValue, attributeNamespace, i;
 
     for (i = 0; i < element.attributes.length; i++) {
         attributeName = element.attributes[i].localName;
@@ -41,8 +42,6 @@ function readConfigFromAttributes(widgetConfig, element) {
         }
 
         if (attributeName === "srcNode" && attributeNamespace === "fastui") {
-            id = element.getAttribute('id');
-
             widgetConfig.srcNode = attributeValue;
             widgetConfig.addProperty("srcNode", "#" + id);
 

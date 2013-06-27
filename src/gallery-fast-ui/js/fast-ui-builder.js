@@ -24,33 +24,30 @@ FastUiBuilder.prototype.parse = function() {
     var parseResult = this.parseXmlTemplate(),
         variables = parseResult.variables,
         widgetDefinitions = parseResult.widgetDefinitions,
-        createdWidgets = {},  // so far no widgets are yet created.
         newWidget,
         key,
         nodeId,
-        i,
-        result;
+        i;
 
     this.rootNode = this.createRootNode(parseResult);
+    this.createdWidgets = {}; // // so far no widgets are yet created.
 
-    result = {};
+    this.result = {};
 
+    // build the widgets and keep track of the created widgets.
     for (i = widgetDefinitions.length - 1; i >= 0; i--) {
-        newWidget = this.createWidget(widgetDefinitions[i], result);
-        createdWidgets[widgetDefinitions[i].nodeId] = newWidget;
-
-        this.updateBindings(variables, newWidget);
+        newWidget = this.createWidget(widgetDefinitions[i]);
+        this.createdWidgets[widgetDefinitions[i].nodeId] = newWidget;
     }
 
-    // the rest of the variables reference just nodes
     for (key in variables) {
         if (variables.hasOwnProperty(key)) {
             nodeId = variables[key];
-            result[key] = this.getWidgetOrNode(nodeId, createdWidgets );
+            this.result[key] = this.getWidgetOrNode(nodeId);
         }
     }
 
-    result["_rootNode"] = this.rootNode;
+    this.result._rootNode = this.rootNode;
 
     if (this.parent) {
         this.parent.appendChild(this.rootNode);
@@ -58,7 +55,7 @@ FastUiBuilder.prototype.parse = function() {
         Y.one("body").removeChild( this.rootNode );
     }
 
-    return result;
+    return this.result;
 };
 
 FastUiBuilder.prototype.parseXmlTemplate = function() {
@@ -79,25 +76,25 @@ FastUiBuilder.prototype.createRootNode = function(parseResult) {
 };
 
 FastUiBuilder.prototype.getWidgetOrNode = function(nodeId, createdWidgets) {
-    var widget = createdWidgets[nodeId];
+    var widget = this.createdWidgets[nodeId];
 
     return widget ? widget : this.rootNode.one("#" + nodeId);
 };
 
-FastUiBuilder.prototype.updateBindings = function(variables, widget) {
+FastUiBuilder.prototype.updateBindings = function(variables, widget, nodeId) {
     var key;
 
     for (key in variables) {
-        if (variables[key] === widget.nodeId) {
+        if (variables[key] === nodeId) {
             this.bindings[key] = widget;
             delete variables[key];
         }
     }
 };
 
-FastUiBuilder.prototype.createWidget = function(widget, finalResult) {
+FastUiBuilder.prototype.createWidget = function(widget) {
     var ClassConstructor = this.getClassConstructor(widget.className),
-        classConfig = this.getClassConfig(widget.config, finalResult),
+        classConfig = this.getClassConfig(widget.config),
         classInstance = new ClassConstructor(classConfig),
         placeHolderElement;
 
@@ -138,11 +135,11 @@ FastUiBuilder.prototype.getClassConstructor = function(fullyQualifiedName) {
     }
 };
 
-FastUiBuilder.prototype.getClassConfig = function(widgetConfig, finalResult) {
+FastUiBuilder.prototype.getClassConfig = function(widgetConfig) {
     var widgetGlobalConfig, finalConfig = {};
 
     // widgetConfig.srcNode gets in
-    mix(finalConfig, this.evaluateProperties(widgetConfig.properties, finalResult));
+    mix(finalConfig, this.evaluateProperties(widgetConfig.properties));
 
     if (this.globalConfig && widgetConfig.globalConfigKey) {
         widgetGlobalConfig = this.globalConfig[widgetConfig.globalConfigKey];
@@ -153,7 +150,7 @@ FastUiBuilder.prototype.getClassConfig = function(widgetConfig, finalResult) {
     return finalConfig;
 };
 
-FastUiBuilder.prototype.evaluateProperties = function(propertiesMap, finalResult) {
+FastUiBuilder.prototype.evaluateProperties = function(propertiesMap) {
     var key,
         result = {};
 
@@ -161,8 +158,7 @@ FastUiBuilder.prototype.evaluateProperties = function(propertiesMap, finalResult
         if (propertiesMap.hasOwnProperty(key)) {
             result[key] = this.evaluatePropertyValue(
                 propertiesMap[key],
-                null,
-                finalResult
+                null
             );
         }
     }
@@ -170,7 +166,7 @@ FastUiBuilder.prototype.evaluateProperties = function(propertiesMap, finalResult
     return result;
 };
 
-FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, config, resultToUpdate) {
+FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, config) {
     if ("string" === widgetConfigProperty.type &&
         "srcNode" === widgetConfigProperty.name) {
 
@@ -182,7 +178,7 @@ FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, c
     } else if ("ui" === widgetConfigProperty.type) {
         var builtUi = Y.fastUi(null, widgetConfigProperty.value, null, config);
 
-        mix(resultToUpdate, builtUi);
+        mix(this.result, builtUi);
 
         return builtUi._rootNode;
     } else if ("js" === widgetConfigProperty.type) {
