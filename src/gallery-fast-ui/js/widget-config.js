@@ -32,9 +32,11 @@ function readConfigFromAttributes(id, widgetConfig, element) {
     var attributeName, attributeValue, attributeNamespace, i;
 
     for (i = 0; i < element.attributes.length; i++) {
-        attributeName = element.attributes[i].localName;
-        attributeValue = element.attributes[i].value;
-        attributeNamespace = !!element.attributes[i].namespaceURI ? element.attributes[i].namespaceURI : null;
+        var attribute = element.attributes[i];
+
+        attributeName = attribute.localName || attribute.baseName;
+        attributeValue = attribute.value;
+        attributeNamespace = !!attribute.namespaceURI ? attribute.namespaceURI : null;
 
         if (attributeName === "config-key" && attributeNamespace === "fastui") {
             widgetConfig.globalConfigKey = attributeValue;
