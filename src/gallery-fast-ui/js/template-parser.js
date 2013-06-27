@@ -1,3 +1,10 @@
+/**
+ * Parses a XML template, and finds out what variables need to be filled in into the response,
+ * what widgets need to be created, and gets from the XML a HTML template that uses just regular
+ * DOM elements, deferring the build of the widges to the {FastUiBuilder}.
+ *
+ * @constructor
+ */
 function TemplateParser() {
     this.variables = [];
     this.widgets = [];
@@ -119,7 +126,7 @@ TemplateParser.prototype.getId = function(element) {
 };
 
 TemplateParser.prototype.getElementType = function(element) {
-    var srcNodeType = this.getAttribute(element, "src", "fastui");
+    var srcNodeType = this.getAttribute(element, "srcNode", "fastui");
 
     return srcNodeType ? srcNodeType : "span";
 };

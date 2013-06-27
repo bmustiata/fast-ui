@@ -1,3 +1,10 @@
+/**
+ * @param {Element} parent       Where should the built UI be appended after it's built.
+ * @param {string} xmlContent   The UI that is supposed to be built.
+ * @param {object} msg          I18N messages, that will be substituted in the XML.
+ * @param {object} globalConfig Configuration for various UI elements.
+ * @constructor
+ */
 function FastUiBuilder(parent, xmlContent, msg, globalConfig) {
     this.parent = !!parent ? Y.one(parent) : null;
     this.xmlContent = xmlContent;
@@ -7,6 +14,12 @@ function FastUiBuilder(parent, xmlContent, msg, globalConfig) {
     this.bindings = []; // a map between ID of elements in the output HTML, and target widget configs.
 }
 
+/**
+ * Creates all the DOM elements and widgets that were in this.xmlContent.
+ *
+ * @this {FastUiBuilder}
+ * @returns {object} A map of widgets or dom elements that were created, that were marked with the ui:field attribute.
+ */
 FastUiBuilder.prototype.parse = function() {
     var parseResult = this.parseXmlTemplate(),
         variables = parseResult.variables,
@@ -19,10 +32,6 @@ FastUiBuilder.prototype.parse = function() {
         result;
 
     this.rootNode = this.createRootNode(parseResult);
-
-    if (this.parent) {
-        this.parent.appendChild(this.rootNode);
-    }
 
     result = {};
 
@@ -43,6 +52,12 @@ FastUiBuilder.prototype.parse = function() {
 
     result["_rootNode"] = this.rootNode;
 
+    if (this.parent) {
+        this.parent.appendChild(this.rootNode);
+    } else {
+        Y.one("body").removeChild( this.rootNode );
+    }
+
     return result;
 };
 
@@ -56,7 +71,11 @@ FastUiBuilder.prototype.createRootNode = function(parseResult) {
     var htmlContent = parseResult.htmlContent,
         closedNodeHtmlBugFix = htmlContent.replace(/<([\w\d]+?)\s+([^>]+?)\/>/gm,"<$1 $2></$1>");
 
-    return Y.Node.create( closedNodeHtmlBugFix );
+    var rootNode = Y.Node.create(closedNodeHtmlBugFix);
+
+    Y.one("body").appendChild(rootNode);
+
+    return rootNode;
 };
 
 FastUiBuilder.prototype.getWidgetOrNode = function(nodeId, createdWidgets) {
@@ -152,6 +171,12 @@ FastUiBuilder.prototype.evaluateProperties = function(propertiesMap, finalResult
 };
 
 FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, config, resultToUpdate) {
+    if ("string" === widgetConfigProperty.type &&
+        "srcNode" === widgetConfigProperty.name) {
+
+        return this.rootNode.one(widgetConfigProperty.value);
+    }
+
     if ("string" === widgetConfigProperty.type) {
         return widgetConfigProperty.value;
     } else if ("ui" === widgetConfigProperty.type) {

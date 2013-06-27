@@ -40,11 +40,12 @@ function readConfigFromAttributes(widgetConfig, element) {
             continue;
         }
 
-        if (attributeName === "src" && attributeNamespace === "fastui") {
+        if (attributeName === "srcNode" && attributeNamespace === "fastui") {
             id = element.getAttribute('id');
 
             widgetConfig.srcNode = attributeValue;
             widgetConfig.addProperty("srcNode", "#" + id);
+
             continue;
         }
 
@@ -69,7 +70,7 @@ function readConfigFromElements(widgetConfig, configNodes) {
 
         name = configNode.getAttribute("name");
         type = configNode.getAttribute("type");
-        type = !!type ? type : "ui"; // the default type for config elements is "ui"
+        type = !!type ? type : "js"; // the default type for config elements is "js"
 
         value = extractContents(configNode, type);
 
