@@ -11,13 +11,3 @@ function WidgetConfigProperty(name, value, type) {
     this.value = value;
     this.type = type;
 }
-
-WidgetConfigProperty.prototype.evaluateValue = function(config) {
-    if ("string" === this.type) {
-        return this.value;
-    } else if ("ui" === this.type) {
-        return Y.fastUi(null, this.value, null, config)._rootNode;
-    } else if ("js" === this.type) {
-        return eval(this.value);
-    }
-};

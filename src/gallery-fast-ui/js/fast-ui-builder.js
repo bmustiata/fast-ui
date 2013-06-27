@@ -27,7 +27,7 @@ FastUiBuilder.prototype.parse = function() {
     result = {};
 
     for (i = widgetDefinitions.length - 1; i >= 0; i--) {
-        newWidget = this.createWidget(widgetDefinitions[i]);
+        newWidget = this.createWidget(widgetDefinitions[i], result);
         createdWidgets[widgetDefinitions[i].nodeId] = newWidget;
 
         this.updateBindings(variables, newWidget);
@@ -76,9 +76,9 @@ FastUiBuilder.prototype.updateBindings = function(variables, widget) {
     }
 };
 
-FastUiBuilder.prototype.createWidget = function(widget) {
+FastUiBuilder.prototype.createWidget = function(widget, finalResult) {
     var ClassConstructor = this.getClassConstructor(widget.className),
-        classConfig = this.getClassConfig(widget.config, this.globalConfig),
+        classConfig = this.getClassConfig(widget.config, finalResult),
         classInstance = new ClassConstructor(classConfig),
         placeHolderElement;
 
@@ -119,30 +119,63 @@ FastUiBuilder.prototype.getClassConstructor = function(fullyQualifiedName) {
     }
 };
 
-FastUiBuilder.prototype.getClassConfig = function(widgetConfig) {
+FastUiBuilder.prototype.getClassConfig = function(widgetConfig, finalResult) {
     var widgetGlobalConfig, finalConfig = {};
 
     // widgetConfig.srcNode gets in
-    finalConfig = Y.merge(finalConfig, this.evaluateProperties(widgetConfig.properties));
+    mix(finalConfig, this.evaluateProperties(widgetConfig.properties, finalResult));
 
     if (this.globalConfig && widgetConfig.globalConfigKey) {
         widgetGlobalConfig = this.globalConfig[widgetConfig.globalConfigKey];
 
-        finalConfig = Y.merge(finalConfig, widgetGlobalConfig);
+        mix(finalConfig, widgetGlobalConfig);
     }
 
     return finalConfig;
 };
 
-FastUiBuilder.prototype.evaluateProperties = function(propertiesMap) {
+FastUiBuilder.prototype.evaluateProperties = function(propertiesMap, finalResult) {
     var key,
         result = {};
 
     for (key in propertiesMap) {
         if (propertiesMap.hasOwnProperty(key)) {
-            result[key] = propertiesMap[key].evaluateValue(null);
+            result[key] = this.evaluatePropertyValue(
+                propertiesMap[key],
+                null,
+                finalResult
+            );
         }
     }
 
     return result;
 };
+
+FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, config, resultToUpdate) {
+    if ("string" === widgetConfigProperty.type) {
+        return widgetConfigProperty.value;
+    } else if ("ui" === widgetConfigProperty.type) {
+        var builtUi = Y.fastUi(null, widgetConfigProperty.value, null, config);
+
+        mix(resultToUpdate, builtUi);
+
+        return builtUi._rootNode;
+    } else if ("js" === widgetConfigProperty.type) {
+        return eval(widgetConfigProperty.value);
+    }
+};
+
+/**
+ * Add one or more items passed as arguments into the target.
+ */
+function mix(target) {
+    var i, key;
+
+    for (i = 1; i < arguments.length; i++) {
+        for (key in arguments[i]) {
+            if (arguments[i].hasOwnProperty(key)) {
+                target[key] = arguments[i][key];
+            }
+        }
+    }
+}
