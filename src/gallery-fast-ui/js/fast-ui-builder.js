@@ -1,4 +1,5 @@
 /**
+ * @public
  * @param {Element} parent       Where should the built UI be appended after it's built.
  * @param {string} xmlContent   The UI that is supposed to be built.
  * @param {object} msg          I18N messages, that will be substituted in the XML.
@@ -10,18 +11,17 @@ function FastUiBuilder(parent, xmlContent, msg, globalConfig) {
     this.xmlContent = xmlContent;
     this.msg = msg;
     this.globalConfig = globalConfig;
-
-    this.bindings = []; // a map between ID of elements in the output HTML, and target widget configs.
 }
 
 /**
  * Creates all the DOM elements and widgets that were in this.xmlContent.
  *
+ * @public
  * @this {FastUiBuilder}
  * @returns {object} A map of widgets or dom elements that were created, that were marked with the ui:field attribute.
  */
 FastUiBuilder.prototype.parse = function() {
-    var parseResult = this.parseXmlTemplate(),
+    var parseResult = this._parseXmlTemplate(),
         variables = parseResult.variables,
         widgetDefinitions = parseResult.widgetDefinitions,
         newWidget,
@@ -29,21 +29,21 @@ FastUiBuilder.prototype.parse = function() {
         nodeId,
         i;
 
-    this.rootNode = this.createRootDomNode(parseResult);
+    this.rootNode = this._createRootDomNode(parseResult);
     this.createdWidgets = {}; // // so far no widgets are yet created.
 
     this.result = {};
 
     // build the widgets and keep track of the created widgets.
     for (i = widgetDefinitions.length - 1; i >= 0; i--) {
-        newWidget = this.createWidget(widgetDefinitions[i]);
+        newWidget = this._createWidget(widgetDefinitions[i]);
         this.createdWidgets[widgetDefinitions[i].nodeId] = newWidget;
     }
 
     for (key in variables) {
         if (variables.hasOwnProperty(key)) {
             nodeId = variables[key];
-            this.result[key] = this.getWidgetOrNode(nodeId);
+            this.result[key] = this._getWidgetOrNode(nodeId);
         }
     }
 
@@ -60,9 +60,10 @@ FastUiBuilder.prototype.parse = function() {
 
 /**
  * Translate and parse the XML.
+ * @private
  * @returns {ParserResult}
  */
-FastUiBuilder.prototype.parseXmlTemplate = function() {
+FastUiBuilder.prototype._parseXmlTemplate = function() {
     var translatedXml = this.msg ? Y.Lang.sub(this.xmlContent, this.msg) : this.xmlContent;
 
     return new TemplateParser().parse(translatedXml);
@@ -71,10 +72,11 @@ FastUiBuilder.prototype.parseXmlTemplate = function() {
 
 /**
  * Create the initial DOM nodes, on top which the widgets will be created.
+ * @private
  * @param parseResult
  * @returns {Y.Node}
  */
-FastUiBuilder.prototype.createRootDomNode = function(parseResult) {
+FastUiBuilder.prototype._createRootDomNode = function(parseResult) {
     var htmlContent = parseResult.htmlContent,
         closedNodeHtmlBugFix = htmlContent.replace(/<([\w\d]+?)\s+([^>]+?)\/>/gm,"<$1 $2></$1>");
 
@@ -88,10 +90,11 @@ FastUiBuilder.prototype.createRootDomNode = function(parseResult) {
 /**
  * Given an ID return either the node whose ID it is, or if a widget was created for that ID,
  * return the widget.
+ * @private
  * @param nodeId
  * @returns {Element | Object}
  */
-FastUiBuilder.prototype.getWidgetOrNode = function(nodeId) {
+FastUiBuilder.prototype._getWidgetOrNode = function(nodeId) {
     var widget = this.createdWidgets[nodeId];
 
     return widget ? widget : this.rootNode.one("#" + nodeId);
@@ -99,12 +102,13 @@ FastUiBuilder.prototype.getWidgetOrNode = function(nodeId) {
 
 /**
  * Create a widget, using the given WidgetConfig.
+ * @private
  * @param {WidgetConfig} widget Widget configuration (usually obtain after parsing).
  * @returns {Object} Newly created widget.
  */
-FastUiBuilder.prototype.createWidget = function(widget) {
-    var ClassConstructor = this.getClassConstructor(widget.className),
-        classConfig = this.getClassConfig(widget.config),
+FastUiBuilder.prototype._createWidget = function(widget) {
+    var ClassConstructor = this._getClassConstructor(widget.className),
+        classConfig = this._getClassConfig(widget.config),
         classInstance = new ClassConstructor(classConfig),
         placeHolderElement;
 
@@ -112,7 +116,7 @@ FastUiBuilder.prototype.createWidget = function(widget) {
     if (widget.config.srcNode) {
         classInstance.render();
     } else {
-        placeHolderElement = this.findElement(widget.nodeId);
+        placeHolderElement = this._findElement(widget.nodeId);
         classInstance.render(placeHolderElement);
     }
 
@@ -123,7 +127,13 @@ FastUiBuilder.prototype.createWidget = function(widget) {
     return classInstance;
 };
 
-FastUiBuilder.prototype.findElement = function(id) {
+/**
+ * Attempt to find an element under the rootNode.
+ * @private
+ * @param {String} id Id of the element to be found.
+ * @returns {Y.Node}
+ */
+FastUiBuilder.prototype._findElement = function(id) {
     if (this.rootNode.get("id") === id) {
         return this.rootNode;
     } else {
@@ -131,7 +141,13 @@ FastUiBuilder.prototype.findElement = function(id) {
     }
 };
 
-FastUiBuilder.prototype.getClassConstructor = function(fullyQualifiedName) {
+/**
+ * From a given class name, obtain the function that we're supposed to instantiate.
+ * @private
+ * @param {String} fullyQualifiedName The name of the function that needs to be created.
+ * @returns {Function} Function class that needs to be created.
+ */
+FastUiBuilder.prototype._getClassConstructor = function(fullyQualifiedName) {
     if (/^Y\./.test(fullyQualifiedName)) {
         var matches = /^Y\.((.*)\.)?(.*?)$/.exec(fullyQualifiedName),
             packageName = matches[2],
@@ -145,11 +161,17 @@ FastUiBuilder.prototype.getClassConstructor = function(fullyQualifiedName) {
     }
 };
 
-FastUiBuilder.prototype.getClassConfig = function(widgetConfig) {
+/**
+ * Obtain the object that needs to be passed as an argument to the function, from a widgetConfiguration.
+ * @private
+ * @param {WidgetConfig} widgetConfig
+ * @returns {Object} Configuration object.
+ */
+FastUiBuilder.prototype._getClassConfig = function(widgetConfig) {
     var widgetGlobalConfig, finalConfig = {};
 
     // widgetConfig.srcNode gets in
-    mix(finalConfig, this.evaluateProperties(widgetConfig.properties));
+    mix(finalConfig, this._evaluateProperties(widgetConfig.properties));
 
     if (this.globalConfig && widgetConfig.globalConfigKey) {
         widgetGlobalConfig = this.globalConfig[widgetConfig.globalConfigKey];
@@ -160,7 +182,13 @@ FastUiBuilder.prototype.getClassConfig = function(widgetConfig) {
     return finalConfig;
 };
 
-FastUiBuilder.prototype.evaluateProperties = function(propertiesMap) {
+/**
+ *
+ * @param {Object} propertiesMap A map of {WidgetConfigProperty}
+ * @returns {Object}
+ * @private
+ */
+FastUiBuilder.prototype._evaluateProperties = function(propertiesMap) {
     var key,
         result = {};
 
@@ -176,7 +204,12 @@ FastUiBuilder.prototype.evaluateProperties = function(propertiesMap) {
     return result;
 };
 
-
+/**
+ * @private
+ * @param {WidgetConfigProperty} widgetConfigProperty
+ * @param config
+ * @returns {*}
+ */
 FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, config) {
     if ("string" === widgetConfigProperty.type &&
         "srcNode" === widgetConfigProperty.name) {
@@ -187,7 +220,7 @@ FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, c
     if ("string" === widgetConfigProperty.type) {
         return widgetConfigProperty.value;
     } else if ("ui" === widgetConfigProperty.type) {
-        var builtUi = Y.fastUi(null, widgetConfigProperty.value, null, config);
+        var builtUi = new FastUiBuilder(null, widgetConfigProperty.value, null, config).parse();
 
         mix(this.result, builtUi);
 
@@ -198,6 +231,7 @@ FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, c
 };
 
 /**
+ * @private
  * Add one or more items passed as arguments into the target.
  */
 function mix(target) {
