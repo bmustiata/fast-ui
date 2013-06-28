@@ -5,7 +5,7 @@
     "author"     : [ "bogdan_mustiata" ],
     "use"        : [ "gallery-fast-ui" ],
 
-    "tags": [ "gallery" ],
+    "tags": [ "gallery", "fast-ui", "gallery-fast-ui" ],
 
     "examples": [ {
         "name": "example-demo",

@@ -29,7 +29,7 @@ FastUiBuilder.prototype.parse = function() {
         nodeId,
         i;
 
-    this.rootNode = this.createRootNode(parseResult);
+    this.rootNode = this.createRootDomNode(parseResult);
     this.createdWidgets = {}; // // so far no widgets are yet created.
 
     this.result = {};
@@ -58,13 +58,23 @@ FastUiBuilder.prototype.parse = function() {
     return this.result;
 };
 
+/**
+ * Translate and parse the XML.
+ * @returns {ParserResult}
+ */
 FastUiBuilder.prototype.parseXmlTemplate = function() {
     var translatedXml = this.msg ? Y.Lang.sub(this.xmlContent, this.msg) : this.xmlContent;
 
     return new TemplateParser().parse(translatedXml);
 };
 
-FastUiBuilder.prototype.createRootNode = function(parseResult) {
+
+/**
+ * Create the initial DOM nodes, on top which the widgets will be created.
+ * @param parseResult
+ * @returns {Y.Node}
+ */
+FastUiBuilder.prototype.createRootDomNode = function(parseResult) {
     var htmlContent = parseResult.htmlContent,
         closedNodeHtmlBugFix = htmlContent.replace(/<([\w\d]+?)\s+([^>]+?)\/>/gm,"<$1 $2></$1>");
 
@@ -75,23 +85,23 @@ FastUiBuilder.prototype.createRootNode = function(parseResult) {
     return rootNode;
 };
 
-FastUiBuilder.prototype.getWidgetOrNode = function(nodeId, createdWidgets) {
+/**
+ * Given an ID return either the node whose ID it is, or if a widget was created for that ID,
+ * return the widget.
+ * @param nodeId
+ * @returns {Element | Object}
+ */
+FastUiBuilder.prototype.getWidgetOrNode = function(nodeId) {
     var widget = this.createdWidgets[nodeId];
 
     return widget ? widget : this.rootNode.one("#" + nodeId);
 };
 
-FastUiBuilder.prototype.updateBindings = function(variables, widget, nodeId) {
-    var key;
-
-    for (key in variables) {
-        if (variables[key] === nodeId) {
-            this.bindings[key] = widget;
-            delete variables[key];
-        }
-    }
-};
-
+/**
+ * Create a widget, using the given WidgetConfig.
+ * @param {WidgetConfig} widget Widget configuration (usually obtain after parsing).
+ * @returns {Object} Newly created widget.
+ */
 FastUiBuilder.prototype.createWidget = function(widget) {
     var ClassConstructor = this.getClassConstructor(widget.className),
         classConfig = this.getClassConfig(widget.config),
@@ -165,6 +175,7 @@ FastUiBuilder.prototype.evaluateProperties = function(propertiesMap) {
 
     return result;
 };
+
 
 FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, config) {
     if ("string" === widgetConfigProperty.type &&

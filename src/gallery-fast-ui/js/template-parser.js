@@ -8,9 +8,19 @@
 function TemplateParser() {
     this.variables = [];
     this.widgets = [];
+
+    /**
+     * THe html content
+     * @type {string}
+     */
     this.htmlContent = "";
 }
 
+/**
+ * Parse some xml content.
+ * @param xmlContent
+ * @returns {ParserResult}
+ */
 TemplateParser.prototype.parse = function (xmlContent) {
     var xmlDoc = Y.XML.parse(xmlContent);
 
@@ -18,11 +28,7 @@ TemplateParser.prototype.parse = function (xmlContent) {
 
     this.htmlContent = Y.XML.format(xmlDoc.firstChild);
 
-    return {
-        variables: this.variables,
-        widgetDefinitions: this.widgets,
-        htmlContent: this.htmlContent
-    };
+    return new ParserResult(this.variables, this.widgets, this.htmlContent);
 };
 
 /**
