@@ -232,6 +232,8 @@ FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, c
 
 /**
  * @private
+ * @param {Object} target The target where the properties of the other arguments will be copied into.
+ * @param {...Object} args Objects that will have their properties copied into the target.
  * Add one or more items passed as arguments into the target.
  */
 function mix(target) {

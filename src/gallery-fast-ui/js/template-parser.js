@@ -1,16 +1,27 @@
 /**
  * Parses a XML template, and finds out what variables need to be filled in into the response,
  * what widgets need to be created, and gets from the XML a HTML template that uses just regular
- * DOM elements, deferring the build of the widges to the {FastUiBuilder}.
+ * DOM elements, deferring the build of the widges themselves to the {FastUiBuilder}.
  *
  * @constructor
  */
 function TemplateParser() {
-    this.variables = [];
+    /**
+     * A map of variable to ID of element in the DOM where the variable should be extracted from.
+     * @public
+     * @type {Object}
+     */
+    this.variables = {};
+
+    /**
+     * An array of widget configs, for all the widgets that should be created. The widgets
+     * are sorted from the container elements, downwards to "simple" elements.
+     * @type {Array<WidgetConfig>}
+     */
     this.widgets = [];
 
     /**
-     * THe html content
+     * The html content that should be initially created, and afterwards, the widgets built on top.
      * @type {string}
      */
     this.htmlContent = "";
@@ -57,18 +68,39 @@ TemplateParser.prototype.traverseElement = function (element) {
         element.removeChild( configNodes[i] );
     }
 
-    var widgetId = this.getId(element);
+    var widgetId = this.getId(element),
+        needsId = false;
 
-    this.checkVariable(element, widgetId);
-    this.checkWidget(element, widgetId, configNodes);
+    needsId |= this.registerVariable(element, widgetId);
+    needsId |= this.registerWidget(element, widgetId, configNodes);
+
+    if (needsId) {
+        this._ensureElementHasId(element, widgetId);
+    }
 };
 
-TemplateParser.prototype.checkVariable = function(element, widgetId) {
+
+TemplateParser.prototype._ensureElementHasId = function(element, widgetId) {
+    if (!this.getAttribute(element, "id")) {
+        element.setAttribute("id", widgetId);
+    }
+};
+
+/**
+ *
+ * @param element
+ * @param widgetId
+ * @returns {boolean}
+ */
+TemplateParser.prototype.registerVariable = function(element, widgetId) {
     var uiField = this.getAttribute(element, 'field', 'fastui');
 
     if (uiField) {
         this.variables[uiField] = widgetId;
+        return true;
     }
+
+    return false;
 };
 
 TemplateParser.prototype.isConfigElement = function(element) {
@@ -79,10 +111,10 @@ TemplateParser.prototype.isConfigElement = function(element) {
         elementName === "config";
 };
 
-TemplateParser.prototype.checkWidget = function(element, widgetId, configNodes) {
+TemplateParser.prototype.registerWidget = function(element, widgetId, configNodes) {
     // there is a namespace URI, we need to create a WidgetDefinition
     if (!element.namespaceURI) {
-        return;
+        return false;
     }
 
     var elementName = element.localName || element.baseName,
@@ -99,6 +131,8 @@ TemplateParser.prototype.checkWidget = function(element, widgetId, configNodes) 
     this.widgets.push(widget);
 
     element.parentNode.replaceChild(placeHolderElement, element);
+
+    return true;
 };
 
 

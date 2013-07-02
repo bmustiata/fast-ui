@@ -11,20 +11,30 @@ Y.fastUi = function(parent, xmlContent, msg, globalConfig) {
 };
 
 /**
- * @param parent
- * @param xmlContent
- * @param [msg]
- * @param [globalConfig]
+ * @param {String | Element | Y.Node} parent
+ * @param {String} xmlContent
+ * @param {Object} [msg]
+ * @param {Function} [callback] The callback that will be called when the ui is the first time created.
+ * @param {Object} [globalConfig]
  * @returns {Function}
  */
-Y.lazyUi = function(parent, xmlContent, msg, globalConfig) {
-    var ui;
+Y.lazyUi = function(parent, xmlContent, msg, callback, globalConfig) {
+    var ui,
+        result;
 
-    return function() {
+    result = function () {
         if (!!ui) {
             return ui;
         }
 
-        return ui = Y.fastUi(parent, xmlContent, msg, globalConfig);
-    }
+        ui = Y.fastUi(parent, xmlContent, msg, globalConfig);
+
+        if (!!callback) {
+            callback(ui);
+        }
+
+        return ui;
+    };
+
+    return result
 };
