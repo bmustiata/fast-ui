@@ -8,9 +8,9 @@
     "tags": [ "gallery", "fast-ui", "gallery-fast-ui" ],
 
     "examples": [ {
-        "name": "example-demo",
-        "displayName": "Simple demo",
-        "description": "A simple demo on how to use fastUi",
+        "name": "full-demo",
+        "displayName": "Full demo",
+        "description": "A full demo on how to use fastUi.",
         "modules": ["gallery-fast-ui"],
         "tags": ["gallery"]
     } ]
