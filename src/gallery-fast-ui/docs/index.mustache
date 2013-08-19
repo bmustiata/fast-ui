@@ -15,8 +15,32 @@
 
 <h2>Usage</h2>
 <p>In order to use it, you simple need to use XML namespaces mapped to the actual JS namespaces that you want used. You
-can use multiple namespaces, and only the "<i>fastui</i>" namespace is reserved.</p>
+can use multiple namespaces, and the "<i>fastui</i>" namespace adds the extra power you need to work with those widgets
+or nodes.</p>
 <p>The "fastui" namespace contains element building configuration. (see the end of this page for details).</p>
+
+<p>The gallery-fast-ui adds two functions: fastUi and lazyUi.</p>
+<p>
+```
+    Y.fastUi = function(parent, xmlContent, msg, globalConfig) {..}
+    // and
+    Y.lazyUi = function(parent, xmlContent, msg, callback, globalConfig) {..}
+```
+</p>
+<p>Functionally they are about the same, except that lazyUi will create the ui only when needed. For example let's assume
+that you have a dialog that you want shown only when the user clicks some button. Then you will create the dialog with lazyUi
+and instantiate it as such:</p>
+<p>
+```
+    var ui = Y.lazyUi(....); // ui.dialog is exported
+
+    // some callback
+    someButton.on("click", function() {
+        ui().dialog.show(); // only here does the dialog really gets created.
+    });
+```
+</p>
+
 <div id="demo" class="example yui3-skin-sam">
     <script>
         YUI({
@@ -37,6 +61,11 @@ can use multiple namespaces, and only the "<i>fastui</i>" namespace is reserved.
 
 <h2>Features</h2>
 
+<h3>True UI Fast Creation</h3>
+<p>Many times when creating UIs you need to build them from a mixture of widgets (and HTML). FastUi makes creating
+    complex UIs a breeze, even if they are actually composed from multiple widgets (see the Full demo for a dialog, with a
+    tab panel and several buttons created in one go).</p>
+
 <h3>I18N out of the box</h3>
 <p>FastUi takes its template and runs it against handlebars. If the <strong>msg</strong> parameter is set, it will
     automatically replace the values. Furthermore, if the value is set in an attribute of a Widget, it will also get I18N
@@ -50,11 +79,6 @@ can use multiple namespaces, and only the "<i>fastui</i>" namespace is reserved.
 <p>When creating widgets FastUi normally creates a placeholder &lt;span&gt; and simply calls widget.render('#idOfSpan').
     FastUi also supports creating a different element using <strong>ui:srcNode</strong> (for example ui:src="div" will
     create a div element), and then passing the srcNode as an attribute to the constructor of the widget.</p>
-
-<h3>True UI Focus</h3>
-<p>Many times when creating UIs you need to build them from a mixture of widgets (and HTML). FastUi makes creating
-complex UIs a breeze, even if they are actually composed from multiple widgets (see the Full demo for a dialog, with a
-tab panel and several buttons created in one go).</p>
 
 <h2>The FastUi Namespace - &lt;div xmlns:ui="fastui"&gt;</h2>
 <table>
