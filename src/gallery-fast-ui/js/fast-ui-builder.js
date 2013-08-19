@@ -78,9 +78,10 @@ FastUiBuilder.prototype._parseXmlTemplate = function() {
  */
 FastUiBuilder.prototype._createRootDomNode = function(parseResult) {
     var htmlContent = parseResult.htmlContent,
-        closedNodeHtmlBugFix = htmlContent.replace(/<([\w\d]+?)\s+([^>]+?)\/>/gm,"<$1 $2></$1>");
+        closedNodeHtmlBugFix = htmlContent.replace(/<([\w\d]+?)\s+([^>]+?)\/>/gm,"<$1 $2></$1>"),
+        rootNode;
 
-    var rootNode = Y.Node.create(closedNodeHtmlBugFix);
+    rootNode = Y.Node.create(closedNodeHtmlBugFix);
 
     Y.one("body").appendChild(rootNode);
 

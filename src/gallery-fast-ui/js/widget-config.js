@@ -29,10 +29,14 @@ WidgetConfig.buildFromElement = function(id, element, configNodes) {
  * @param element
  */
 function readConfigFromAttributes(id, widgetConfig, element) {
-    var attributeName, attributeValue, attributeNamespace, i;
+    var attribute,
+        attributeName,
+        attributeValue,
+        attributeNamespace,
+        i;
 
     for (i = 0; i < element.attributes.length; i++) {
-        var attribute = element.attributes[i];
+        attribute = element.attributes[i];
 
         attributeName = attribute.localName || attribute.baseName;
         attributeValue = attribute.value;

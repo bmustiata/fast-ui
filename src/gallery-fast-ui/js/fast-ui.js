@@ -36,5 +36,5 @@ Y.lazyUi = function(parent, xmlContent, msg, callback, globalConfig) {
         return ui;
     };
 
-    return result
+    return result;
 };

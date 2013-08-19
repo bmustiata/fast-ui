@@ -47,7 +47,11 @@ TemplateParser.prototype.parse = function (xmlContent) {
  * @param element Start element.
  */
 TemplateParser.prototype.traverseElement = function (element) {
-    var i, childElement, configNodes = [];
+    var i,
+        childElement,
+        configNodes = [],
+        widgetId,
+        needsId = false;
 
     for (i = 0; i < element.childNodes.length; i++) {
         childElement = element.childNodes[i];
@@ -68,11 +72,10 @@ TemplateParser.prototype.traverseElement = function (element) {
         element.removeChild( configNodes[i] );
     }
 
-    var widgetId = this.getId(element),
-        needsId = false;
+    widgetId = this.getId(element),
 
-    needsId |= this.registerVariable(element, widgetId);
-    needsId |= this.registerWidget(element, widgetId, configNodes);
+    needsId = needsId || this.registerVariable(element, widgetId);
+    needsId = needsId || this.registerWidget(element, widgetId, configNodes);
 
     if (needsId) {
         this._ensureElementHasId(element, widgetId);
