@@ -71,6 +71,18 @@ and instantiate it as such:</p>
     complex UIs a breeze, even if they are actually composed from multiple widgets (see the Full demo for a dialog, with a
     tab panel and several buttons created in one go).</p>
 
+<h3>Don't mix UI and JS code anymore</h3>
+<p>Install fast-ui from npm:</p>
+```
+$ npm install -g fast-ui
+```
+<p>and then you can run fast-ui in your src folder module. This will scan the ui/ folder for any file, and put them into a
+variable into a new JS named js/ui.js, so then you could just do:</p>
+```
+Y.fastUi(rootNode, uiDefinition['my-dialog.xml'], msg);
+Y.fastUi(rootNode, uiDefinition['my-other-dialog.xml'], msg);
+```
+
 <h3>I18N out of the box</h3>
 <p>FastUi takes its template and runs it against handlebars. If the <strong>msg</strong> parameter is set, it will
     automatically replace the values. Furthermore, if the value is set in an attribute of a Widget, it will also get I18N
