@@ -72,10 +72,10 @@ TemplateParser.prototype.traverseElement = function (element) {
         element.removeChild( configNodes[i] );
     }
 
-    widgetId = this.getId(element),
+    widgetId = this.getId(element);
 
-    needsId = needsId || this.registerVariable(element, widgetId);
-    needsId = needsId || this.registerWidget(element, widgetId, configNodes);
+    needsId = this.registerVariable(element, widgetId) || needsId;
+    needsId = this.registerWidget(element, widgetId, configNodes) || needsId;
 
     if (needsId) {
         this._ensureElementHasId(element, widgetId);
