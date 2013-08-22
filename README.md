@@ -4,7 +4,7 @@ fast-ui
 Intro
 ------
 FastUi is a YUI3 module that is focused on building UIs fast. It is inspired from frameworks like GWT and JSF2,
-focused on a composition model that is easily described in an easy to understand XML.
+focused on a composition model that is easily described in an easy to understand XML. 
 
 This fits like a glove on top of the YUI3 architecture of widgets.
 
