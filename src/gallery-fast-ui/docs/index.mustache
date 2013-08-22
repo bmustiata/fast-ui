@@ -32,7 +32,12 @@ that you have a dialog that you want shown only when the user clicks some button
 and instantiate it as such:</p>
 <p>
 ```
-    var ui = Y.lazyUi(....); // ui.dialog is exported
+    var ui = Y.lazyUi(parent, xmlContent, msg, function(_ui) {
+
+        // here the _ui object is truly the object created by Y.fastUi, and not a proxy
+        // like the case with lazyUi.
+
+    }); // ui.dialog is exported
 
     // some callback
     someButton.on("click", function() {
