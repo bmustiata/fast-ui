@@ -27,9 +27,9 @@ The "fastui" namespace contains element building configuration. (see the end of 
 
 The gallery-fast-ui adds two functions: fastUi and lazyUi.
 ```
-    Y.fastUi = function(parent, xmlContent, msg, globalConfig) {..}
-    // and
-    Y.lazyUi = function(parent, xmlContent, msg, callback, globalConfig) {..}
+Y.fastUi = function(parent, xmlContent, msg, globalConfig) {..}
+// and
+Y.lazyUi = function(parent, xmlContent, msg, callback, globalConfig) {..}
 ```
 
 Functionally they are about the same, except that lazyUi will create the ui only when needed. For example let's assume
@@ -37,17 +37,17 @@ that you have a dialog that you want shown only when the user clicks some button
 and instantiate it as such:
 
 ```
-    var ui = Y.lazyUi(parent, xmlContent, msg, function(_ui) {
+var ui = Y.lazyUi(parent, xmlContent, msg, function(_ui) {
 
-        // here the _ui object is truly the object created by Y.fastUi, and not a proxy
-        // like the case with lazyUi.
+    // here the _ui object is truly the object created by Y.fastUi, and not a proxy
+    // like the case with lazyUi.
 
-    }); // ui.dialog is exported
+}); // ui.dialog is exported
 
-    // some callback
-    someButton.on("click", function() {
-        ui().dialog.show(); // only here does the dialog really gets created.
-    });
+// some callback
+someButton.on("click", function() {
+    ui().dialog.show(); // only here does the dialog really gets created.
+});
 ```
 
 Features
@@ -74,7 +74,9 @@ create a div element), and then passing the srcNode as an attribute to the const
 
 The FastUi Namespace - <div xmlns:ui="fastui">
 ----------------------------------------------
-<table>
+
+<table style="font-size:12px">
+
     <thead>
         <tr>
             <td>
@@ -200,4 +202,5 @@ The FastUi Namespace - <div xmlns:ui="fastui">
             </td>
         </tr>
     </tbody>
+
 </table>
