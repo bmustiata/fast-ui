@@ -596,10 +596,7 @@ FastUiBuilder.prototype._evaluateProperties = function(propertiesMap) {
 
     for (key in propertiesMap) {
         if (propertiesMap.hasOwnProperty(key)) {
-            result[key] = this.evaluatePropertyValue(
-                propertiesMap[key],
-                null
-            );
+            result[key] = this.evaluatePropertyValue(propertiesMap[key]);
         }
     }
 
@@ -612,7 +609,7 @@ FastUiBuilder.prototype._evaluateProperties = function(propertiesMap) {
  * @param config
  * @returns {*}
  */
-FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, config) {
+FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty) {
     if ("string" === widgetConfigProperty.type &&
         "srcNode" === widgetConfigProperty.name) {
 
@@ -622,7 +619,7 @@ FastUiBuilder.prototype.evaluatePropertyValue = function(widgetConfigProperty, c
     if ("string" === widgetConfigProperty.type) {
         return widgetConfigProperty.value;
     } else if ("ui" === widgetConfigProperty.type) {
-        var builtUi = new FastUiBuilder(null, widgetConfigProperty.value, null, config).parse();
+        var builtUi = new FastUiBuilder(null, widgetConfigProperty.value, this.msg, this.globalConfig).parse();
 
         mix(this.result, builtUi);
 
@@ -691,4 +688,4 @@ Y.lazyUi = function(parent, xmlContent, msg, callback, globalConfig) {
 };
 
 
-}, '0.2', {"requires": ["datatype-xml", "node", "widget", "yui-base"]});
+}, '@VERSION@', {"requires": ["datatype-xml", "node", "widget", "yui-base"]});
